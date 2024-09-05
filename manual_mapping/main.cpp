@@ -8,7 +8,7 @@ int main() {
 	if (hSnap == INVALID_HANDLE_VALUE)
 	{
 		DWORD err = GetLastError();
-		printf("CreateToolhelp32Snapshot was not successfull: 0x%Xn");
+		printf("CreateToolhelp32Snapshot was not successfull: 0x%X\n");
 		system("PAUSE");
 		return 0;
 	}
