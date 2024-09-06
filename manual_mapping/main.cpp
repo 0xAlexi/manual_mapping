@@ -12,5 +12,33 @@ int main() {
 		system("PAUSE");
 		return 0;
 	}
-
+	DWORD PID = 0;
+	BOOL bRet = Process32First(hSnap, &PE32);
+	while (bRet)
+	{
+		if (!strcmp(szProc,PE32.szExeFile))
+		{
+			PID = PE32.th32ProcessID;
+			break;
+		}
+		bool bRet = Process32Next(hSnap, &PE32);
+	}
+	CloseHandle(hSnap);
+	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, PID);
+	if (!hProc)
+	{
+		DWORD err = GetLastError();
+		printf("OpenProcess was not successfull: 0x%X\n");
+		system("PAUSE");
+		return 0;
+	}
+	if (!ManualMap(hProc,szDllFile))
+	{
+		CloseHandle(hProc);
+		printf("Something went wrong debug for details... \n");
+		system("PAUSE");
+		return 0;
+	}
+	CloseHandle(hProc);
+	return 0;
 }
