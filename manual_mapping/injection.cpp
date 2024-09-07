@@ -1,7 +1,7 @@
 #include "injection.h"
 using namespace std;
-bool ManualMap(HANDLE hProc, const char * szDllFile) { //Checking the file legit as well 
-	BYTE*	pSrcData = nullptr;
+bool ManualMap(HANDLE hProc, const char* szDllFile) { //Checking the file legit as well 
+	BYTE* pSrcData = nullptr;
 	IMAGE_NT_HEADERS* pOldNtHeader = nullptr;
 	IMAGE_OPTIONAL_HEADER* pOldOptHeader = nullptr;
 	IMAGE_FILE_HEADER* pOldFileHeader = nullptr;
@@ -24,7 +24,7 @@ bool ManualMap(HANDLE hProc, const char * szDllFile) { //Checking the file legit
 	auto FileSize = File.tellg();
 	if (FileSize < 0x1000)
 	{
-		printf("Invalid file size. \b" );
+		printf("Invalid file size. \b");
 		File.close();
 
 		return false;
@@ -39,6 +39,30 @@ bool ManualMap(HANDLE hProc, const char * szDllFile) { //Checking the file legit
 	File.seekg(0, std::ios::beg); //file pointer is set back to beggining
 	File.read(reinterpret_cast<char*>(pSrcData), FileSize);
 	File.close();
+	if (reinterpret_cast<IMAGE_DOS_HEADER*>(pSrcData)->e_magic != 0x5A4D)//magic number used by all executables? look into wikipedia DOS MZ executable
+	{
+		printf("Invalid file.\n");
+		delete[] pSrcData;
+		return false;
+	}
+	pOldNtHeader = reinterpret_cast<IMAGE_NT_HEADERS*>(pSrcData + reinterpret_cast<IMAGE_DOS_HEADER*>(pSrcData)->e_lfanew);
+	pOldOptHeader = &pOldNtHeader->OptionalHeader;
+	pOldFileHeader = &pOldNtHeader->FileHeader;
+
+#ifdef _WIN64
+	if (pOldFileHeader->Machine != IMAGE_FILE_MACHINE_AMD64) {
+		printf("Invalid x64 platform.\n");
+		delete[]pSrcData;
+		return false;
+	}
+#else
+	if (pOldFileHeader->Machine != IMAGE_FILE_MACHINE_I386) {
+		printf("Invalid x64 platform.\n");
+		delete[]pSrcData;
+		return false;
+	}  
+#endif
+
 
 
 }
