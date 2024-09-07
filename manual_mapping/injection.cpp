@@ -74,5 +74,22 @@ bool ManualMap(HANDLE hProc, const char* szDllFile) { //Checking the file legit 
 		}
 
 	}
+	MANUAL_MAPPING_DATA data{ 0 };
+	data.pLoadLibrary = LoadLibraryA;
+	data.pGetProcAddress = reinterpret_cast<f_GetProcAddress>( GetProcAddress);
+	auto* pSectionHeader = IMAGE_FIRST_SECTION(pOldNtHeader);
+	for (UINT i = 0; i != pOldFileHeader -> NumberOfSections; ++i,++pSectionHeader ) //Number of sections to copy
+	{
+		if (pSectionHeader->SizeOfRawData)
+		{
+			if (!WriteProcessMemory(hProc,pTargetBase + pSectionHeader-> VirtualAddress,pSrcData + pSectionHeader->PointerToRawData,pSectionHeader->SizeOfRawData,nullptr))
+			{
+				printf("Could not map the sections: 0x%x\n", GetLastError());
+				delete[]	pSrcData;
+				VirtualFreeEx(hProc, pTargetBase, MEM_RELEASE);
+				return false;
+			}
+		}
+	}
 
 }
