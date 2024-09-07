@@ -36,4 +36,9 @@ bool ManualMap(HANDLE hProc, const char * szDllFile) { //Checking the file legit
 		File.close();
 		return false;
 	}
+	File.seekg(0, std::ios::beg); //file pointer is set back to beggining
+	File.read(reinterpret_cast<char*>(pSrcData), FileSize);
+	File.close();
+
+
 }
