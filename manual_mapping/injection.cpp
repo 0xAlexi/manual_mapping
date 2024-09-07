@@ -62,7 +62,17 @@ bool ManualMap(HANDLE hProc, const char* szDllFile) { //Checking the file legit 
 		return false;
 	}  
 #endif
+	pTargetBase = reinterpret_cast<BYTE*>(VirtualAllocEx(hProc, reinterpret_cast<void*>(pOldOptHeader->ImageBase), pOldOptHeader->SizeOfImage, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
+	if (pTargetBase)
+	{
+		pTargetBase = reinterpret_cast<BYTE*>(VirtualAllocEx(hProc, nullptr, pOldOptHeader->SizeOfImage, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
+		if (!pTargetBase)
+		{
+			printf("Memmory allocation failed,(ex): 0x%X\n",GetLastError());
+			delete[]	pSrcData;
+			return false;
+		}
 
-
+	}
 
 }
