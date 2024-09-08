@@ -1,5 +1,7 @@
 #include "injection.h"
 using namespace std;
+
+void _stdcall Shellcode(MANUAL_MAPPING_DATA* pData);
 bool ManualMap(HANDLE hProc, const char* szDllFile) { //Checking the file legit as well 
 	BYTE* pSrcData = nullptr;
 	IMAGE_NT_HEADERS* pOldNtHeader = nullptr;
@@ -91,5 +93,24 @@ bool ManualMap(HANDLE hProc, const char* szDllFile) { //Checking the file legit 
 			}
 		}
 	}
+	delete[] pSrcData;
 
+}
+
+void _stdcall Shellcode(MANUAL_MAPPING_DATA* pData)
+{
+	if (!pData)
+	{
+		return;
+	}
+	BYTE* pBase = reinterpret_cast<BYTE*>(pData);
+	auto* pOpt = &reinterpret_cast<IMAGE_NT_HEADERS*>(pBase + reinterpret_cast<IMAGE_DOS_HEADER*>(pData)->e_lfanew)->OptionalHeader;
+	auto _LoadLibaryA = pData->pLoadLibrary;
+	auto _GetProcAddress = pData->pGetProcAddress;
+	auto _DllMain = reinterpret_cast<f_DLL_ENTRY_POINT>(pBase + pOpt->AddressOfEntryPoint);
+	BYTE* LocationData = pBase - pOpt->ImageBase;
+	if (!pOpt->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size)
+		return;
+	auto*
+	
 }
